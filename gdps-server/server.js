@@ -8,6 +8,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+require("./songs")(app);
 
 // 1. GDPS Level Search Endpoint
 app.post("/getGJLevels21.php", (req, res) => {
