@@ -4057,6 +4057,20 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
     const shouldPlayMenuMusic = menuMusicEnabled === null ? true : menuMusicEnabled === "true";
     
     if (window.isEditor) {
+        // Prevent Ghost Menu Bug: Hide all main menu objects if auto-starting
+        if (this._playBtn) this._playBtn.setVisible(false);
+        if (this._iconBtn) this._iconBtn.setVisible(false);
+        if (this._creatorBtn) this._creatorBtn.setVisible(false);
+        if (this._menuProfileBtn) this._menuProfileBtn.setVisible(false);
+        if (this._menuProfileName) this._menuProfileName.setVisible(false);
+        if (this._menuSettingsBtn) this._menuSettingsBtn.setVisible(false);
+        if (this._menuStatsBtn) this._menuStatsBtn.setVisible(false);
+        if (this._menuAchievementsBtn) this._menuAchievementsBtn.setVisible(false);
+        if (this._menuNewgroundsBtn) this._menuNewgroundsBtn.setVisible(false);
+        if (this._logo) this._logo.setVisible(false);
+        if (this._copyrightText) this._copyrightText.setVisible(false);
+        if (this._socialIcons) this._socialIcons.forEach(i => { if (i) i.setVisible(false); });
+
       this._audio.stopMusic();
     } else if (!this._audio.isplaying() && shouldPlayMenuMusic) {
       this._audio.startMenuMusic();
@@ -4083,6 +4097,20 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
         this._levelLabel.setVisible(false);
         this._leftBtn.setVisible(false);
         this._rightBtn.setVisible(false);
+        // Prevent Ghost Menu Bug: Hide all main menu objects if auto-starting
+        if (this._playBtn) this._playBtn.setVisible(false);
+        if (this._iconBtn) this._iconBtn.setVisible(false);
+        if (this._creatorBtn) this._creatorBtn.setVisible(false);
+        if (this._menuProfileBtn) this._menuProfileBtn.setVisible(false);
+        if (this._menuProfileName) this._menuProfileName.setVisible(false);
+        if (this._menuSettingsBtn) this._menuSettingsBtn.setVisible(false);
+        if (this._menuStatsBtn) this._menuStatsBtn.setVisible(false);
+        if (this._menuAchievementsBtn) this._menuAchievementsBtn.setVisible(false);
+        if (this._menuNewgroundsBtn) this._menuNewgroundsBtn.setVisible(false);
+        if (this._logo) this._logo.setVisible(false);
+        if (this._copyrightText) this._copyrightText.setVisible(false);
+        if (this._socialIcons) this._socialIcons.forEach(i => { if (i) i.setVisible(false); });
+
         if (this._practiceModeBarContainer) {
           this._practiceModeBarContainer.setVisible(this._practicedMode && this._practicedMode.practiceMode);
         }
@@ -7323,6 +7351,20 @@ _buildPauseOverlay() {
     });
 
     if (window.isEditor) {
+        // Prevent Ghost Menu Bug: Hide all main menu objects if auto-starting
+        if (this._playBtn) this._playBtn.setVisible(false);
+        if (this._iconBtn) this._iconBtn.setVisible(false);
+        if (this._creatorBtn) this._creatorBtn.setVisible(false);
+        if (this._menuProfileBtn) this._menuProfileBtn.setVisible(false);
+        if (this._menuProfileName) this._menuProfileName.setVisible(false);
+        if (this._menuSettingsBtn) this._menuSettingsBtn.setVisible(false);
+        if (this._menuStatsBtn) this._menuStatsBtn.setVisible(false);
+        if (this._menuAchievementsBtn) this._menuAchievementsBtn.setVisible(false);
+        if (this._menuNewgroundsBtn) this._menuNewgroundsBtn.setVisible(false);
+        if (this._logo) this._logo.setVisible(false);
+        if (this._copyrightText) this._copyrightText.setVisible(false);
+        if (this._socialIcons) this._socialIcons.forEach(i => { if (i) i.setVisible(false); });
+
         this._audio.stopMusic();
         this._cameraX = 0;
         this._cameraY = 0;
@@ -8221,6 +8263,20 @@ _buildPauseOverlay() {
   }
   update(_0x54fa47, deltaTime) {
     if (window.isEditor) {
+        // Prevent Ghost Menu Bug: Hide all main menu objects if auto-starting
+        if (this._playBtn) this._playBtn.setVisible(false);
+        if (this._iconBtn) this._iconBtn.setVisible(false);
+        if (this._creatorBtn) this._creatorBtn.setVisible(false);
+        if (this._menuProfileBtn) this._menuProfileBtn.setVisible(false);
+        if (this._menuProfileName) this._menuProfileName.setVisible(false);
+        if (this._menuSettingsBtn) this._menuSettingsBtn.setVisible(false);
+        if (this._menuStatsBtn) this._menuStatsBtn.setVisible(false);
+        if (this._menuAchievementsBtn) this._menuAchievementsBtn.setVisible(false);
+        if (this._menuNewgroundsBtn) this._menuNewgroundsBtn.setVisible(false);
+        if (this._logo) this._logo.setVisible(false);
+        if (this._copyrightText) this._copyrightText.setVisible(false);
+        if (this._socialIcons) this._socialIcons.forEach(i => { if (i) i.setVisible(false); });
+
         if (this._editorPlaytestActive && !this._editorPlaytestPaused) {
             this._levelEditor._updateEditorPlaytest(deltaTime);
             this._levelEditor._updateEditorGrid();
