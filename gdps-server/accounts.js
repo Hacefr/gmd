@@ -2,7 +2,9 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 
-const DB_FILE = path.join(__dirname, "users.json");
+// Use Permanent Render Disk if available
+const DB_DIR = process.env.RENDER ? "/data" : __dirname;
+const DB_FILE = path.join(DB_DIR, "users.json");
 
 function loadDB() {
   if (!fs.existsSync(DB_FILE)) fs.writeFileSync(DB_FILE, JSON.stringify({ users: [], sessions: {}, saves: {}, userProgress: {} }, null, 2));

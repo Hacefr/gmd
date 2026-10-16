@@ -1,7 +1,9 @@
 const fs = require("fs");
 const path = require("path");
 
-const LEVELS_FILE = path.join(__dirname, "levels.json");
+// Use Permanent Render Disk if available
+const DB_DIR = process.env.RENDER ? "/data" : __dirname;
+const LEVELS_FILE = path.join(DB_DIR, "levels.json");
 
 function loadLevels() {
   if (!fs.existsSync(LEVELS_FILE)) return [];
