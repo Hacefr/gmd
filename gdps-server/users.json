@@ -2,30 +2,25 @@
   "users": [
     {
       "id": 1,
-      "username": "Hacesgd",
+      "username": "Hacefr",
       "email": null,
-      "salt": "d6860bd39925e658cfd61231e175b696",
-      "hash": "055072e9b71453aabea27ba595fd247a06467fb4d011d4818294d4f06de8a9e6020c08d1f805c75125112e702ba6153e034c33ceb50971b48a5a5fa2d39d1e36",
+      "salt": "dea67ecd66a20407f0534069e97ebc4b",
+      "hash": "4d8c7888538b1fab26ddb3e1c6bdac76af4c8f0e8c9fb65a606f5e3b84e71486c82c042dd40c27cdcb559f8acb7864b7f2694cec13e136af9200c5607e3207d6",
       "pin": null,
-      "createdAt": "2026-10-15T21:46:44.393Z"
+      "createdAt": "2026-10-16T00:58:24.651Z"
     },
     {
       "id": 2,
       "username": "Hace",
       "email": null,
-      "salt": "f758053506000a279cb06373f5cc5bd3",
-      "hash": "aad845839f97ac4dbc8fcdcd6d2d42762a470fe46ea2d29b26ed26d4721f651bfd5fa567eda98dea7472e9f5b2f9386d13a1c7b26a1cbadf3ddf7904e23c10ab",
+      "salt": "885ee8c2d83430e89dba741eaedda16f",
+      "hash": "ef59634f147a1c510580bc0f601b056ffe51904853557166a672bbb4f5ba8955ab3102d557d0bf1095de59a274d37438ac8cef6976ce5fb6d5242821f47954e4",
       "pin": null,
-      "createdAt": "2026-10-15T22:32:08.684Z"
+      "createdAt": "2026-10-16T01:00:01.985Z"
     }
   ],
   "sessions": {
-    "631f7a38c959822286b23d1ddd993c9a6c598ee0875ea6b6cfd3561b9170ee2e": 2
+    "61d935a88f632e18db71955efc3918e83de14fe2110045a9e98ab6da61d34eec": 1
   },
-  "saves": {
-    "1": {
-      "created_levels": "[{\"levelName\":\"Unnamed 0\",\"song\":\"Stereo Madness\",\"songId\":-1,\"levelId\":null,\"levelString\":\"H4sIAAAAAAAACq1QwRHDMAhbyO0hwIlzfWWGDsAAXaHD10Z-9Ff3Ln4gG4GMeD2tFYRLaEBrWGitARCUwKTHDbEFRCT2wF3yBOrXvYVEC7wRKSi6JoirBY8FwdHB9iVJjZ5ckP1rlf19taIv7pLGh-wP43XROPq9z9mOtX1uS7LldcKKzPx41ZKwEbz0yPueUSfPF9qApx3kMlrGJE7PSBbCIlYpy5QVuheMciE0AgiaoFRUihk5I2ec0Knp1PTK9slxYDM2OIFmjL8bv-1mBmB6YrvO4UErHR4fJXMaP9sDAAA=\",\"levelLength\":0,\"normalBest\":0,\"practiceBest\":0,\"description\":\"\",\"version\":1,\"status\":\"Unverified\",\"createdId\":\"local_1\"}]",
-      "_bestPercents": {}
-    }
-  }
+  "saves": {}
 }

@@ -889,6 +889,52 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
         .setScrollFactor(0).setDepth(503).setOrigin(0.5);
       this._fitBitmapText(authorText, sw * 0.6);
       this._playOverlayObjects.push(authorText);
+      // Admin Rate & Delete Buttons for Hacefr
+      const currentUser = window.AccountAPI && window.AccountAPI.currentUser;
+      if (currentUser && currentUser.username.toLowerCase() === "hacefr") {
+        const btnBorder = this.textures.get("GJ_button01").source[0].width * 0.3;
+        
+        // RATE BUTTON
+        const rateBtn = this.add.container(centerX + 190, nameText.y + 10).setSize(100, 46).setScrollFactor(0).setDepth(999).setInteractive();
+        const rBg = this.add.nineslice(0, 0, "GJ_button01", null, 100, 46, btnBorder, btnBorder, btnBorder, btnBorder).setOrigin(0.5);
+        rateBtn.add(rBg);
+        rateBtn.add(this.add.bitmapText(0, -3, "goldFont", "RATE", 24).setOrigin(0.5));
+        this._makeBouncyButton(rateBtn, 1, () => {
+          this._buildAdminRatePopup(lvl);
+        });
+        this._playOverlayObjects.push(rateBtn);
+
+        // DELETE BUTTON
+        const delBtn = this.add.container(centerX + 295, nameText.y + 10).setSize(100, 46).setScrollFactor(0).setDepth(999).setInteractive();
+        const dBg = this.add.nineslice(0, 0, "GJ_button01", null, 100, 46, btnBorder, btnBorder, btnBorder, btnBorder).setOrigin(0.5);
+        delBtn.add(dBg);
+        // Tint delete button red-ish or use standard
+        const dTxt = this.add.bitmapText(0, -3, "goldFont", "DELETE", 22).setOrigin(0.5).setTint(0xff5555);
+        delBtn.add(dTxt);
+        this._makeBouncyButton(delBtn, 1, async (e) => {
+      if (e) { if (e.preventDefault) e.preventDefault(); if (e.stopPropagation) e.stopPropagation(); }
+          if (confirm("Permanently delete level #" + lvl.id + " (" + lvl.name + ") from the server?")) {
+            try {
+              const res = await fetch("/api/admin/delete", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ levelId: lvl.id, userName: currentUser.username })
+              });
+              if (res.ok) {
+                alert("✓ Level deleted successfully!");
+                // Close level view and refresh search
+                this._closePlayMenu?.(true);
+              } else {
+                alert("Failed to delete level.");
+              }
+            } catch (err) {
+              alert("Error: " + err.message);
+            }
+          }
+        });
+        this._playOverlayObjects.push(delBtn);
+      }
+
 
       const playBtnY = sh * 0.36 - 15;
       const playBtn2 = this.add.image(centerX, playBtnY, "GJ_GameSheet03", "GJ_playBtn2_001.png")
@@ -2618,7 +2664,7 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
           ? ("Song #" + levelData.customSongID)
           : (window.allLevels && window.allLevels[levelData.officialSong] ? window.allLevels[levelData.officialSong][1] : "Unknown");
         try {
-          const infoRes = await fetch(`https://gdbrowser.com/api/level/${levelData.id}`);
+          const infoRes = await fetch(`/downloadGJLevel22.php?levelID=${levelData.id}`);
           if (infoRes.ok) {
             const infoData = await infoRes.json();
             if (infoData) {
@@ -5138,6 +5184,43 @@ _buildPauseOverlay() {
       this._buildAccountPopup();
     });
     inner.add(accBtn);
+    // Admin Level Manager Button (Only visible to Hacefr)
+    if (user && user.username.toLowerCase() === "hacefr") {
+      const adminBtn = this.add.container(0, 120).setSize(240, 48).setInteractive();
+      const aBg = this.add.nineslice(0, 0, "GJ_button01", null, 240, 48, btnBorder, btnBorder, btnBorder, btnBorder).setOrigin(0.5);
+      adminBtn.add(aBg);
+      adminBtn.add(this.add.bitmapText(0, -3, "goldFont", "Admin Rate Level", 24).setOrigin(0.5).setTint(0xff6666));
+      this._makeBouncyButton(adminBtn, 1, () => {
+        this._profilePopup.destroy();
+        this._profilePopup = null;
+        const targetIdStr = prompt("Enter Online Level ID to Rate:");
+        if (!targetIdStr) return;
+        const targetId = parseInt(targetIdStr);
+        if (isNaN(targetId)) { alert("Invalid ID"); return; }
+        // Fetch and open rater for this ID
+        fetch("/downloadGJLevel22.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: "levelID=" + targetId
+        }).then(res => res.text()).then(txt => {
+          const parts = txt.split("#")[0].split(":");
+          const map = {};
+          for(let i=0; i<parts.length; i+=2) map[parts[i]] = parts[i+1];
+          const mockLevel = {
+            id: targetId,
+            name: map["2"] || "Level #" + targetId,
+            stars: parseInt(map["18"]) || 0,
+            featured: map["42"] === "1"
+          };
+          this._buildAdminRatePopup(mockLevel);
+        }).catch(err => alert("Could not find level: " + err.message));
+      });
+      inner.add(adminBtn);
+      
+      // Shift Account Settings button down slightly to make room
+      accBtn.y = 175;
+    }
+
 
     this.tweens.add({ targets: inner, scale: 1, duration: 200, ease: "Back.Out" });
   }
@@ -6060,6 +6143,126 @@ _buildPauseOverlay() {
       });
 
       this.events.on("update", this._refreshMacroButtons);
+  }
+
+
+  _closeInfoPopup() {
+    if (this._creditsPopup) {
+      this._creditsPopup.destroy();
+      this._creditsPopup = null;
+    }
+  }
+
+
+  _buildAdminRatePopup(level) {
+    if (this._adminRatePopup) return;
+    const user = window.AccountAPI && window.AccountAPI.currentUser;
+    if (!user || user.username.toLowerCase() !== "hacefr") {
+      alert("Admin access only!");
+      return;
+    }
+
+    const centerX = screenWidth / 2, centerY = screenHeight / 2, panelWidth = 500, panelHeight = 360;
+    this._adminRatePopup = this.add.container(0, 0).setScrollFactor(0).setDepth(2000);
+
+    const dim = this.add.rectangle(centerX, centerY, screenWidth, screenHeight, 0, 160 / 255).setInteractive();
+    this._adminRatePopup.add(dim);
+
+    const inner = this.add.container(centerX, centerY).setScale(0);
+    this._adminRatePopup.add(inner);
+
+    const corner = 0.325 * this.textures.get("GJ_square01").source[0].width;
+    const panel = this._drawScale9(0, 0, panelWidth, panelHeight, "GJ_square01", corner, 16777215, 1);
+    inner.add(panel);
+
+    const closeBtn = this.add.image(-(panelWidth / 2) + 12, -(panelHeight / 2) + 12, "GJ_WebSheet", "GJ_closeBtn_001.png").setScale(0.8).setInteractive();
+    inner.add(closeBtn);
+    this._makeBouncyButton(closeBtn, 0.8, () => {
+      this._adminRatePopup.destroy();
+      this._adminRatePopup = null;
+    });
+
+    inner.add(this.add.bitmapText(0, -(panelHeight / 2) + 38, "bigFont", "ADMIN LEVEL RATER", 32).setOrigin(0.5).setTint(0xff6666));
+
+    let starVal = level.stars || 0;
+    let featVal = level.featured ? true : false;
+
+    const starLbl = this.add.bitmapText(0, -50, "goldFont", "Stars: " + starVal, 28).setOrigin(0.5);
+    inner.add(starLbl);
+
+    const statusLbl = this.add.bitmapText(0, 110, "goldFont", "", 24).setOrigin(0.5);
+    inner.add(statusLbl);
+
+    const makeTinyBtn = (x, y, text, action) => {
+      const bGrp = this.add.container(x, y).setSize(70, 40).setInteractive();
+      const bBg = this.add.nineslice(0, 0, "GJ_button01", null, 70, 40, 10, 10, 10, 10).setOrigin(0.5);
+      bGrp.add(bBg);
+      bGrp.add(this.add.bitmapText(0, -2, "goldFont", text, 22).setOrigin(0.5));
+      this._makeBouncyButton(bGrp, 1, action);
+      inner.add(bGrp);
+    };
+
+    makeTinyBtn(-90, 10, "- Stars", () => { starVal = Math.max(0, starVal - 1); starLbl.setText("Stars: " + starVal); });
+    makeTinyBtn(90, 10, "+ Stars", () => { starVal = Math.min(10, starVal + 1); starLbl.setText("Stars: " + starVal); });
+
+    const featLbl = this.add.bitmapText(0, 70, "goldFont", "Featured: " + (featVal ? "YES" : "NO"), 26).setOrigin(0.5);
+    inner.add(featLbl);
+
+    makeTinyBtn(0, 120, "Toggle Feature", () => { featVal = !featVal; featLbl.setText("Featured: " + (featVal ? "YES" : "NO")); });
+
+    const subGrp = this.add.container(0, 170).setSize(180, 48).setInteractive();
+    const subBg = this.add.nineslice(0, 0, "GJ_button01", null, 180, 48, 15, 15, 15, 15).setOrigin(0.5);
+    subGrp.add(subBg);
+    subGrp.add(this.add.bitmapText(0, -2, "goldFont", "APPLY", 28).setOrigin(0.5));
+    
+    this._makeBouncyButton(subGrp, 1, async (e) => {
+      if (e) { if (e.preventDefault) e.preventDefault(); if (e.stopPropagation) e.stopPropagation(); }
+      try {
+        const res = await fetch("/api/admin/rate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ levelId: level.id, stars: starVal, featured: featVal, userName: user.username })
+        });
+        if (res.ok) {
+          statusLbl.setText("✓ Rating Applied!");
+          statusLbl.setTint(0x00e719);
+          
+          // Update live level data immediately so user sees changes without re-opening
+          level.stars = starVal;
+          level.featured = featVal;
+          if (window.currentOnlineLevel && window.currentOnlineLevel.id === level.id) {
+            window.currentOnlineLevel.stars = starVal;
+            window.currentOnlineLevel.featured = featVal;
+          }
+
+          this.time.delayedCall(600, () => {
+            if (this._adminRatePopup) {
+              this._adminRatePopup.destroy();
+              this._adminRatePopup = null;
+            }
+            // Update level object locally
+            level.stars = starVal;
+            level.featured = featVal;
+            
+            // Re-open level view in place to render updated stars & difficulty face instantly
+            if (this._openLevelView) {
+              this._playOverlayObjects.forEach(obj => { if (obj && obj.destroy) obj.destroy(); });
+              this._playOverlayObjects = [];
+              this._openLevelView(level);
+            }
+          });
+        } else {
+          statusLbl.setText("Failed to update.");
+          statusLbl.setTint(0xff4444);
+        }
+      } catch (err) {
+        statusLbl.setText("Error: " + err.message);
+        statusLbl.setTint(0xff4444);
+      }
+    });
+    inner.add(subGrp);
+
+    this.tweens.add({ targets: inner, scale: 1, duration: 200, ease: "Back.Out" });
   }
 
   _buildCustomCreditsPopup() {
@@ -9906,31 +10109,20 @@ window.open("https://github.com/web-dashers/web-dashers.github.io", "_blank"); }
   }
   _playStarAward() {
     if (!this._endLayerInternal) return;
-    const isVerification = !!(window.isEditor || (window.currentlevel && String(window.currentlevel[2]).startsWith("local_")));
-    const lvlStars = (window.currentOnlineLevel && window.currentOnlineLevel.stars) ? parseInt(window.currentOnlineLevel.stars) : (isVerification ? 0 : 10);
-
-    // Unrated levels or verification plays reward 0 stars
-    if (isVerification || lvlStars <= 0) return;
-
-    // Award stars once
-    const completedKey = "gd_starredSet";
-    let starredSet;
-    try { starredSet = JSON.parse(localStorage.getItem(completedKey) || "[]"); } catch(e) { starredSet = []; }
-    const levelId = window.currentlevel ? window.currentlevel[2] : "level_1";
-    if (!starredSet.includes(levelId)) {
-      starredSet.push(levelId);
-      localStorage.setItem(completedKey, JSON.stringify(starredSet));
-      const totalStars = (parseInt(localStorage.getItem("gd_totalStars") || "0", 10)) + lvlStars;
-      localStorage.setItem("gd_totalStars", totalStars);
-    }
-
-    if (!this._endLayerInternal) {
-      return;
-    }
     const _0x4edc03 = this._endStarX;
     const _0x5a0e9 = this._endStarY;
     const _0x453043 = this.add.image(_0x4edc03, _0x5a0e9, "GJ_WebSheet", "GJ_bigStar_001.png").setScale(3).setAlpha(0);
     this._endLayerInternal.add(_0x453043);
+
+    const onlineLvl = window.currentOnlineLevel || {};
+    const lvlStars = parseInt(onlineLvl.stars) || 0;
+    const isVerification = !!(window.isEditor || (window.currentlevel && String(window.currentlevel[2]).startsWith("local_")));
+
+    if (isVerification || lvlStars <= 0) {
+      _0x453043.setVisible(false);
+      return;
+    }
+
     this.tweens.add({
       targets: _0x453043,
       scale: 0.8,
@@ -9945,49 +10137,18 @@ window.open("https://github.com/web-dashers/web-dashers.github.io", "_blank"); }
       const _0x96e3b2 = _0x5a0e9 + this._endLayerInternal.y;
       this.add.particles(_0x1204d3, _0x96e3b2, "GJ_WebSheet", {
         frame: "square.png",
-        speed: {
-          min: 200,
-          max: 600
-        },
-        angle: {
-          min: 0,
-          max: 360
-        },
-        scale: {
-          start: 0.5,
-          end: 0
-        },
-        alpha: {
-          start: 1,
-          end: 0
-        },
-        lifespan: {
-          min: 200,
-          max: 600
-        },
+        speed: { min: 200, max: 600 },
+        angle: { min: 0, max: 360 },
+        scale: { start: 1, end: 0 },
+        lifespan: { min: 200, max: 600 },
         quantity: 30,
         stopAfter: 30,
         blendMode: S,
         tint: 16776960
       }).setScrollFactor(0).setDepth(202);
-      const _0x43203f = this.add.graphics().setScrollFactor(0).setDepth(202).setBlendMode(S);
-      const _0x403316 = {
-        t: 0
-      };
-      this.tweens.add({
-        targets: _0x403316,
-        t: 1,
-        duration: 400,
-        ease: "Quad.Out",
-        onUpdate: () => {
-          _0x43203f.clear();
-          _0x43203f.fillStyle(16776960, 1 - _0x403316.t);
-          _0x43203f.fillCircle(_0x1204d3, _0x96e3b2, 20 + _0x403316.t * 200);
-        },
-        onComplete: () => _0x43203f.destroy()
-      });
     });
   }
+
   _playsecretcoinanimation() {
     if (!this._endLayerInternal || !this._endsecretcoinPositions || this._practicedMode.practiceMode) return;
     this._endcoinAwardTimer = [];
@@ -10660,7 +10821,10 @@ window.open("https://github.com/web-dashers/web-dashers.github.io", "_blank"); }
           const isDemon   = parseInt(m["17"]) === 1;
           const isAuto    = parseInt(m["25"]) === 1;
           let diffIdx = 0;
-          if (isAuto) {
+          const sVal = parseInt(m["18"]) || 0;
+          if (sVal <= 0) {
+            diffIdx = 0;
+          } else if (isAuto) {
             diffIdx = 11;
           } else if (isDemon) {
             const d9 = parseInt(m["9"]);
@@ -10699,7 +10863,7 @@ window.open("https://github.com/web-dashers/web-dashers.github.io", "_blank"); }
         const _officialEntries = _lastLevelData.filter(ld => !ld.customSongID && ld.id);
         if (_officialEntries.length > 0) {
           await Promise.all(_officialEntries.map(ld => {
-            return fetch(`https://gdbrowser.com/api/level/${ld.id}`)
+            return fetch(`/downloadGJLevel22.php?levelID=${ld.id}`)
               .then(r => r.ok ? r.json() : null)
               .then(data => { if (data && data.songName) ld.songName = data.songName; })
               .catch(() => {});
@@ -11279,7 +11443,7 @@ window.open("https://github.com/web-dashers/web-dashers.github.io", "_blank"); }
       } else {
         Promise.all(_needsFetch.map(levelData => {
           const numericId = String(levelData.id || "").replace(/^online_/, "");
-          return fetch(`https://gdbrowser.com/api/level/${numericId}`)
+          return fetch(`/downloadGJLevel22.php?levelID=${numericId}`)
             .then(r => r.ok ? r.json() : null)
             .then(data => {
               if (data) {

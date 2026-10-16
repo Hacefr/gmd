@@ -1,26 +1,17 @@
 [
   {
-    "id": 2,
-    "name": "Unnamed 0",
-    "desc": "",
-    "author": "Hace",
-    "accountId": 2,
-    "songId": -1,
-    "downloads": 1,
-    "likes": 0,
-    "length": 1,
-    "data": "SDRzSUFBQUFBQUFBQTYxUXdSSERNQWhieU8waHdJbno3QXdaZ0FHeVFvZXZqZnpvci01ZF9FQTJBaGx4bmRZS3dpVTBvRFVzdE5ZQUNFcGcwdU9CMkFJaUVudmdLWGtDOWV2ZVFxSUYzb2dVRkYwVHhOMkN4NExnNkdEN2txUkdUeTdJX3JYS19yNWIwUmQzU2VORDlvZnh1bWdjX2Q3bmJNZmFQcmNsMlhLOVlFVm1mcnhxU2RnSVhucmtmYy1vay1jTGJjQnBCN21NbGpHSmwyY2tDMkVScTVSbHlncmRDMGE1RUJvQkJFMVFLaXJGakp5Uk0wN28xSFJxZW1YNzVEaXdHUnVjUURQRzM0M2Zkak1ETUQyeFhlZndvSlVPSDd1SUg2RGFBd0FB"
-  },
-  {
     "id": 1,
-    "name": "Server Level 1",
-    "desc": "VGVzdCBsZXZlbA==",
-    "author": "Admin",
+    "name": "Stereo Madness",
+    "desc": "The very first official level!",
+    "author": "RobTop",
     "accountId": 1,
     "songId": 0,
-    "downloads": 2,
+    "downloads": 3,
     "likes": 0,
+    "stars": 2,
+    "rated": 1,
     "length": 1,
-    "data": "a1MzOCwxLDEsMiwxMCwzLDE1OzEsOCwyLDI0MCwzLDEwNTs="
+    "data": "a1MzOCwxLDEsMiwxMCwzLDE1OzEsOCwyLDI0MCwzLDEwNTs=",
+    "featured": true
   }
 ]
