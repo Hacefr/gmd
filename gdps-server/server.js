@@ -9,6 +9,8 @@ app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 require("./songs")(app);
+require("./accounts")(app);
+require("./levels")(app);
 
 // 1. GDPS Level Search Endpoint
 app.post("/getGJLevels21.php", (req, res) => {
@@ -33,7 +35,7 @@ app.post("/downloadGJLevel22.php", (req, res) => {
 // 3. Serve all game files (HTML, JS, textures, audio)
 app.use(express.static(path.join(__dirname, "..")));
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log("=========================================");
   console.log("  Full-Stack GDPS active on port " + PORT);
   console.log("=========================================");

@@ -199,6 +199,7 @@ class BootScene extends Phaser.Scene {
     this.load.image("game_bg_01", "assets/game-bg/game_bg_01_001-hd.png");
     this.load.image("sliderBar", "assets/sprites/sliderBar.png");
     this.load.image("GJ_MenuBeta", "assets/sprites/GJ_MenuBeta.png");
+    this.load.image("customLogo", "assets/logo.png");
     this.load.image("Phaserlogo", "assets/sprites/Phaserlogo.png");
     this.load.image("gravityLine_001", "assets/sprites/gravityLine_001.png");
     this.load.atlas("GJ_WebSheet", "assets/sheets/GJ_WebSheet.png", "assets/sheets/GJ_WebSheet.json");
