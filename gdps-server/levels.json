@@ -2,16 +2,19 @@
   {
     "id": 1,
     "name": "Stereo Madness",
-    "desc": "The very first official level!",
+    "desc": "The official first level!",
     "author": "RobTop",
     "accountId": 1,
     "songId": 0,
-    "downloads": 3,
+    "downloads": 56,
     "likes": 0,
-    "stars": 2,
-    "rated": 1,
+    "stars": 1,
+    "diff": 10,
+    "isAuto": 0,
+    "isDemon": 0,
+    "featured": 1,
+    "epic": 0,
     "length": 1,
-    "data": "a1MzOCwxLDEsMiwxMCwzLDE1OzEsOCwyLDI0MCwzLDEwNTs=",
-    "featured": true
+    "data": "kS38,1,1,2,10,3,15;1,8,2,240,3,105;"
   }
 ]

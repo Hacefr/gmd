@@ -614,8 +614,9 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
     }, () => this._menuActive && !this._settingsPopup);
     this._menuStatsBtn = this.add.image(centerX + 202, screenHeight - 90, "GJ_GameSheet03", "GJ_statsBtn_001.png").setScrollFactor(0).setDepth(30).setInteractive();
     this._expandHitArea(this._menuStatsBtn, 1);
+    // Trophy button wired to leaderboard
     this._makeBouncyButton(this._menuStatsBtn, 1, () => {
-      this._showStatsScreen();
+      this._buildLeaderboardPopup();
     }, () => this._menuActive);
     this._menuAchievementsBtn = this.add.image(centerX - 12, screenHeight - 90, "GJ_GameSheet03", "GJ_achBtn_001.png").setScrollFactor(0).setDepth(30).setInteractive().setTint(0x666666);
     this._expandHitArea(this._menuAchievementsBtn, 1);
@@ -748,6 +749,7 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
         const isFeaturedButton = frame === "GJ_featuredBtn_001.png";
         const isEditorButton = frame === "GJ_createBtn_001.png"; 
         const isSavedButton  = frame === "GJ_savedBtn_001.png";
+        const isScoresButton = frame === "GJ_highscoreBtn_001.png";
         if (isSearchButton) {
           btn.setInteractive();
           this._makeBouncyButton(btn, btnScale, () => {
@@ -771,6 +773,12 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
           this._makeBouncyButton(btn, btnScale, () => {
             this._closeCreatorMenu(true);
             this._openSavedLevelsScene();
+          }, () => true);
+        } else if (isScoresButton) {
+          btn.setInteractive();
+          this._makeBouncyButton(btn, btnScale, () => {
+            this._closeCreatorMenu(true);
+            this._buildLeaderboardPopup();
           }, () => true);
         } else {
           btn.postFX.addColorMatrix().grayscale(1);
@@ -889,9 +897,23 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
         .setScrollFactor(0).setDepth(503).setOrigin(0.5);
       this._fitBitmapText(authorText, sw * 0.6);
       this._playOverlayObjects.push(authorText);
+      // Clean non-overlapping Admin Rate Button for Hacefr
+      const adminUsr = window.AccountAPI && window.AccountAPI.currentUser;
+      if (adminUsr && adminUsr.username.toLowerCase() === "hacefr") {
+        const btnBorder = this.textures.get("GJ_button01").source[0].width * 0.3;
+        const rateBtn = this.add.container(centerX, authorText.y + 36).setSize(130, 42).setScrollFactor(0).setDepth(505).setInteractive();
+        const rBg = this.add.nineslice(0, 0, "GJ_button01", null, 130, 42, btnBorder, btnBorder, btnBorder, btnBorder).setOrigin(0.5);
+        rateBtn.add(rBg);
+        rateBtn.add(this.add.bitmapText(0, -2, "goldFont", "ADMIN RATE", 22).setOrigin(0.5));
+        this._makeBouncyButton(rateBtn, 1, () => {
+          this._buildAdminRatePopup(lvl);
+        });
+        this._playOverlayObjects.push(rateBtn);
+      }
+
       // Admin Rate & Delete Buttons for Hacefr
       const currentUser = window.AccountAPI && window.AccountAPI.currentUser;
-      if (currentUser && currentUser.username.toLowerCase() === "hacefr") {
+      if (currentUser && adminUsr.username.toLowerCase() === "hacefr") {
         const btnBorder = this.textures.get("GJ_button01").source[0].width * 0.3;
         
         // RATE BUTTON
@@ -918,7 +940,7 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
               const res = await fetch("/api/admin/delete", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ levelId: lvl.id, userName: currentUser.username })
+                body: JSON.stringify({ levelId: lvl.id, userName: adminUsr.username })
               });
               if (res.ok) {
                 alert("✓ Level deleted successfully!");
@@ -1130,11 +1152,24 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
           updateBtnState();
           abortController = new AbortController();
           try {
-            const workerUrl = `https://fetchsongid.lasokar.workers.dev/?id=${encodeURIComponent(lvl.customSongID)}`;
-            const audioRes = await fetch(workerUrl, { signal: abortController.signal });
-            if (!audioRes.ok) throw new Error("Failed to download audio from worker");
+            const infoRes = await fetch("/getGJSongInfo.php", {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: "songID=" + encodeURIComponent(lvl.customSongID) + "&secret=Wmfd2893gb7"
+            });
+            const infoText = await infoRes.text();
+            if (!infoText || infoText === "-1") throw new Error("Song not found");
+            const parts = infoText.split("~|~");
+            const map = {};
+            for (let i = 0; i + 1 < parts.length; i += 2) map[parts[i]] = parts[i + 1];
+            const songUrl = decodeURIComponent(map["10"] || "");
+            if (!songUrl) throw new Error("No audio URL");
+
+            const audioRes = await fetch("/audio-proxy?url=" + encodeURIComponent(songUrl), { signal: abortController.signal });
+            if (!audioRes.ok) throw new Error("Proxy audio fetch failed");
             const arrayBuf = await audioRes.arrayBuffer();
             await window.SongDB.save(lvl.customSongID, arrayBuf, this.sound.context);
+            console.log(">>> [LEVEL] Custom song downloaded and saved to SongDB!");
           } catch (err) {
             if (err.name === 'AbortError') {
               console.log('Download cancelled.');
@@ -1177,7 +1212,7 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
 
               if (songName && typeof songNameText !== "undefined" && songNameText) {
                 songNameText.setText(songName);
-                this._fitBitmapText(songTitleText, songBoxW - 100);
+                this._fitBitmapText(songNameText, songBoxW - 100);
               }
             })
             .catch(err => {
@@ -5102,7 +5137,90 @@ _buildPauseOverlay() {
  }
 
 
+
+  _buildLeaderboardPopup() {
+    if (this._leaderboardPopup) return;
+    const centerX = screenWidth / 2, centerY = screenHeight / 2, panelWidth = 680, panelHeight = 480;
+    this._leaderboardPopup = this.add.container(0, 0).setScrollFactor(0).setDepth(300);
+
+    const dim = this.add.rectangle(centerX, centerY, screenWidth, screenHeight, 0, 160 / 255).setInteractive();
+    this._leaderboardPopup.add(dim);
+
+    const inner = this.add.container(centerX, centerY).setScale(0);
+    this._leaderboardPopup.add(inner);
+
+    const corner = 0.325 * this.textures.get("GJ_square01").source[0].width;
+    const panel = this._drawScale9(0, 0, panelWidth, panelHeight, "GJ_square01", corner, 16777215, 1);
+    inner.add(panel);
+
+    const closeBtn = this.add.image(-(panelWidth / 2) + 12, -(panelHeight / 2) + 12, "GJ_WebSheet", "GJ_closeBtn_001.png").setScale(0.8).setInteractive();
+    inner.add(closeBtn);
+    this._makeBouncyButton(closeBtn, 0.8, () => {
+      this._leaderboardPopup.destroy();
+      this._leaderboardPopup = null;
+    });
+
+    inner.add(this.add.bitmapText(0, -(panelHeight / 2) + 38, "bigFont", "TOP PLAYERS", 42).setOrigin(0.5).setTint(0xffff00));
+
+    const listContainer = this.add.container(0, -120);
+    inner.add(listContainer);
+
+    // Fetch scores from server
+    fetch("/getGJScores20.php", { method: "POST" })
+      .then(res => res.text())
+      .then(text => {
+        if (!text || text === "-1") {
+          listContainer.add(this.add.bitmapText(0, 50, "goldFont", "No scores on leaderboard yet!", 26).setOrigin(0.5));
+          return;
+        }
+        const entries = text.split("|").filter(Boolean);
+        entries.forEach((entry, idx) => {
+          const parts = entry.split(":");
+          const map = {};
+          for(let i=0; i+1<parts.length; i+=2) map[parts[i]] = parts[i+1];
+          
+          const rank = map["6"] || (idx + 1);
+          const name = map["1"] || "Player";
+          const stars = map["3"] || "0";
+
+          const y = idx * 45;
+          listContainer.add(this.add.bitmapText(-240, y, "goldFont", "#" + rank + ".  " + name, 28).setOrigin(0, 0.5));
+          listContainer.add(this.add.bitmapText(200, y, "bigFont", stars + " ★", 28).setOrigin(1, 0.5).setTint(0xffaa00));
+        });
+      }).catch(err => {
+        listContainer.add(this.add.bitmapText(0, 50, "goldFont", "Failed to load leaderboard.", 26).setOrigin(0.5));
+      });
+
+    this.tweens.add({ targets: inner, scale: 1, duration: 200, ease: "Back.Out" });
+  }
+
   _buildProfilePopup() {
+    // Retroactive star sync
+    try {
+      fetch("/getGJLevels21.php", { method: "POST" })
+        .then(r => r.text())
+        .then(resp => {
+          if (!resp || resp === "-1") return;
+          const sections = resp.split("#");
+          const levelStrs = (sections[0] || "").split("|").filter(Boolean);
+          let completedSet = [];
+          try { completedSet = JSON.parse(localStorage.getItem("gd_completedSet") || "[]"); } catch(e) {}
+          
+          let earnedStars = 0;
+          levelStrs.forEach(ls => {
+            const parts = ls.split(":");
+            const m = {};
+            for(let i=0; i+1<parts.length; i+=2) m[parts[i]] = parts[i+1];
+            const lvlId = "online_" + m["1"];
+            const stars = parseInt(m["18"]) || 0;
+            if (completedSet.includes(lvlId) && stars > 0) {
+              earnedStars += stars;
+            }
+          });
+          localStorage.setItem("gd_totalStars", earnedStars);
+        }).catch(e => {});
+    } catch(e) {}
+
     if (this._profilePopup) return;
     const centerX = screenWidth / 2, centerY = 320, panelWidth = 680, panelHeight = 480;
     this._profilePopup = this.add.container(0, 0).setScrollFactor(0).setDepth(300);
@@ -5138,13 +5256,48 @@ _buildPauseOverlay() {
     inner.add(this.add.bitmapText(0, -155, "bigFont", user.username, 34).setOrigin(0.5).setTint(0x00ffff));
     inner.add(this.add.bitmapText(0, -125, "goldFont", "Player ID: #" + user.id, 22).setOrigin(0.5));
 
-    // Player Cube Showcase
-    const pBox = this.add.rectangle(0, -60, 110, 110, 0x001128, 0.8).setStrokeStyle(3, 0x3cadf5);
+    // Full Icon Showcase Row (Cube, Ship, Ball, UFO, Wave, Robot, Spider)
+    const pBox = this.add.rectangle(0, -55, 620, 65, 0x001128, 0.85).setStrokeStyle(2, 0x3cadf5);
     inner.add(pBox);
+
     const mColor = window.mainColor || 0x00ff00;
-    const sColor = window.secondaryColor || 0x00ffff;
-    const cubeIcon = this.add.image(0, -60, "GJ_GameSheet03", "playerSquare_001.png").setScale(1.2).setTint(mColor);
-    inner.add(cubeIcon);
+    const getFrameFor = (storageKey, setKey, fallback) => {
+      try {
+        const idx = parseInt(localStorage.getItem(storageKey) || "0", 10);
+        if (_iconFrameSets && _iconFrameSets[setKey] && _iconFrameSets[setKey][idx]) {
+          return _iconFrameSets[setKey][idx];
+        }
+      } catch (e) {}
+      return fallback;
+    };
+
+    const iconsToDraw = [
+      { frame: getFrameFor("iconCurrentPlayer", "icon", "player_01_001.png"), scale: 0.75 },
+      { frame: getFrameFor("iconCurrentShip", "ship", "ship_01_001.png"), scale: 0.65 },
+      { frame: getFrameFor("iconCurrentBall", "ball", "player_ball_01_001.png"), scale: 0.65 },
+      { frame: getFrameFor("iconCurrentBird", "bird", "bird_01_001.png") || getFrameFor("iconCurrentBird", "ufo", "ufo_01_001.png"), scale: 0.65 },
+      { frame: getFrameFor("iconCurrentWave", "wave", "wave_01_001.png"), scale: 0.65 },
+      { frame: getFrameFor("iconCurrentRobot", "robot", "robot_01_001.png"), scale: 0.55 },
+      { frame: getFrameFor("iconCurrentSpider", "spider", "spider_01_001.png"), scale: 0.55 }
+    ];
+
+    const startXOffset = -225;
+    const spacingX = 75;
+
+    iconsToDraw.forEach((ic, i) => {
+      const iconX = startXOffset + (i * spacingX);
+      try {
+        const itemImg = this.add.image(iconX, -55, "GJ_GameSheetIcons", ic.frame)
+          .setScale(ic.scale)
+          .setTint(mColor);
+        inner.add(itemImg);
+      } catch (err) {
+        const fallbackImg = this.add.image(iconX, -55, "GJ_GameSheet03", "playerSquare_001.png")
+          .setScale(0.6)
+          .setTint(mColor);
+        inner.add(fallbackImg);
+      }
+    });
 
     // Stats Grid
     const statRows = [
@@ -5157,7 +5310,7 @@ _buildPauseOverlay() {
     ];
 
     const colX = [-180, 80];
-    const startY = 35;
+    const startY = 20;
     const rowH = 48;
 
     statRows.forEach((stat, idx) => {
@@ -5210,9 +5363,13 @@ _buildPauseOverlay() {
             id: targetId,
             name: map["2"] || "Level #" + targetId,
             stars: parseInt(map["18"]) || 0,
-            featured: map["42"] === "1"
+            diff: parseInt(map["9"]) || 0,
+            isAuto: map["25"] === "1" ? 1 : 0,
+            isDemon: map["17"] === "1" ? 1 : 0,
+            featured: map["42"] === "1" ? 1 : 0,
+            epic: 0
           };
-          this._buildAdminRatePopup(mockLevel);
+          this._buildAdminStudio(mockLevel);
         }).catch(err => alert("Could not find level: " + err.message));
       });
       inner.add(adminBtn);
@@ -6265,34 +6422,187 @@ _buildPauseOverlay() {
     this.tweens.add({ targets: inner, scale: 1, duration: 200, ease: "Back.Out" });
   }
 
+
+  _buildAdminStudio(level) {
+    if (this._adminStudioPopup) return;
+    const user = window.AccountAPI && window.AccountAPI.currentUser;
+    if (!user || user.username.toLowerCase() !== "hacefr") {
+      alert("Admin access only!");
+      return;
+    }
+
+    const centerX = screenWidth / 2, centerY = screenHeight / 2, panelWidth = 720, panelHeight = 500;
+    this._adminStudioPopup = this.add.container(0, 0).setScrollFactor(0).setDepth(2500);
+
+    const dim = this.add.rectangle(centerX, centerY, screenWidth, screenHeight, 0, 180 / 255).setInteractive();
+    this._adminStudioPopup.add(dim);
+
+    const inner = this.add.container(centerX, centerY).setScale(0);
+    this._adminStudioPopup.add(inner);
+
+    const corner = 0.325 * this.textures.get("GJ_square01").source[0].width;
+    const panel = this._drawScale9(0, 0, panelWidth, panelHeight, "GJ_square01", corner, 16777215, 1);
+    inner.add(panel);
+
+    const closeBtn = this.add.image(-(panelWidth / 2) + 12, -(panelHeight / 2) + 12, "GJ_WebSheet", "GJ_closeBtn_001.png").setScale(0.8).setInteractive();
+    inner.add(closeBtn);
+    this._makeBouncyButton(closeBtn, 0.8, () => {
+      this._adminStudioPopup.destroy();
+      this._adminStudioPopup = null;
+    });
+
+    // Title
+    inner.add(this.add.bitmapText(0, -(panelHeight / 2) + 40, "bigFont", "ADMIN LEVEL STUDIO", 40).setOrigin(0.5).setTint(0xffff00));
+    inner.add(this.add.bitmapText(0, -(panelHeight / 2) + 78, "goldFont", "Editing: " + (level.name || "Level #" + level.id) + " (ID: " + level.id + ")", 24).setOrigin(0.5));
+
+    // State variables
+    let starVal = level.stars || 0;
+    let diffIdx = level.diff !== undefined ? Math.floor(level.diff / 10) : 0;
+    let isAutoVal = level.isAuto ? 1 : 0;
+    let isDemonVal = level.isDemon ? 1 : 0;
+    let epicVal = level.epic || (level.featured ? 1 : 0);
+
+    const diffFrames = [
+      "difficulty_00_btn_001.png", // 0: NA
+      "difficulty_auto_btn_001.png", // 1: Auto
+      "difficulty_01_btn_001.png", // 2: Easy
+      "difficulty_02_btn_001.png", // 3: Normal
+      "difficulty_03_btn_001.png", // 4: Hard
+      "difficulty_04_btn_001.png", // 5: Harder
+      "difficulty_05_btn_001.png", // 6: Insane
+      "difficulty_10_btn2_001.png" // 7: Demon
+    ];
+
+    const epicLabels = ["None (Unrated)", "Featured (Gold Flame)", "Epic I", "Epic II", "Epic III"];
+
+    // 1. STAR SELECTOR UI
+    inner.add(this.add.bitmapText(-180, -35, "goldFont", "Stars (0-10):", 26).setOrigin(0, 0.5));
+    const starCountTxt = this.add.bitmapText(120, -35, "bigFont", String(starVal), 32).setOrigin(0.5).setTint(0x00ffff);
+    inner.add(starCountTxt);
+
+    const makeArrowBtn = (x, y, flip, action) => {
+      const arr = this.add.image(x, y, "GJ_GameSheet03", "GJ_arrow_01_001.png").setFlipX(flip).setScale(0.8).setInteractive();
+      this._makeBouncyButton(arr, 0.8, action);
+      inner.add(arr);
+      return arr;
+    };
+
+    makeArrowBtn(40, -35, false, () => { starVal = Math.max(0, starVal - 1); starCountTxt.setText(String(starVal)); });
+    makeArrowBtn(200, -35, true, () => { starVal = Math.min(10, starVal + 1); starCountTxt.setText(String(starVal)); });
+
+    // 2. DIFFICULTY FACE SELECTOR UI
+    inner.add(this.add.bitmapText(-180, 35, "goldFont", "Difficulty Face:", 26).setOrigin(0, 0.5));
+    
+    let currentDiffImg = null;
+    const updateDiffPreview = () => {
+      if (currentDiffImg) currentDiffImg.destroy();
+      let frame = diffFrames[Math.min(diffFrames.length - 1, diffIdx)];
+      if (isDemonVal) frame = "difficulty_10_btn2_001.png";
+      else if (isAutoVal) frame = "difficulty_auto_btn_001.png";
+
+      currentDiffImg = this.add.image(120, 35, "GJ_GameSheet03", frame).setScale(0.65).setOrigin(0.5);
+      inner.add(currentDiffImg);
+    };
+    updateDiffPreview();
+
+    makeArrowBtn(40, 35, false, () => {
+      if (isDemonVal) { isDemonVal = 0; isAutoVal = 0; diffIdx = 6; }
+      else if (isAutoVal) { isAutoVal = 0; diffIdx = 0; }
+      else { diffIdx = (diffIdx - 1 + diffFrames.length) % diffFrames.length; if(diffIdx===1) isAutoVal=1; else if(diffIdx===7) isDemonVal=1; }
+      updateDiffPreview();
+    });
+    makeArrowBtn(200, 35, true, () => {
+      if (isAutoVal) { isAutoVal = 0; diffIdx = 2; }
+      else if (diffIdx >= 6) { isDemonVal = 1; diffIdx = 7; }
+      else { diffIdx = (diffIdx + 1) % diffFrames.length; if(diffIdx===1) isAutoVal=1; else if(diffIdx===7) isDemonVal=1; }
+      updateDiffPreview();
+    });
+
+    // 3. TIER / FLAME SELECTOR UI
+    inner.add(this.add.bitmapText(-180, 105, "goldFont", "Badge / Flame:", 26).setOrigin(0, 0.5));
+    const tierTxt = this.add.bitmapText(120, 105, "goldFont", epicLabels[Math.min(epicLabels.length - 1, epicVal)], 22).setOrigin(0.5).setTint(0xffaa00);
+    inner.add(tierTxt);
+
+    makeArrowBtn(20, 105, false, () => {
+      epicVal = (epicVal - 1 + epicLabels.length) % epicLabels.length;
+      tierTxt.setText(epicLabels[epicVal]);
+    });
+    makeArrowBtn(220, 105, true, () => {
+      epicVal = (epicVal + 1) % epicLabels.length;
+      tierTxt.setText(epicLabels[epicVal]);
+    });
+
+    // Status message
+    const statusLbl = this.add.bitmapText(0, 165, "goldFont", "", 24).setOrigin(0.5);
+    inner.add(statusLbl);
+
+    // SAVE & APPLY BUTTON
+    const btnBorder = this.textures.get("GJ_button01").source[0].width * 0.3;
+    const saveGrp = this.add.container(0, 205).setSize(240, 52).setInteractive();
+    const saveBg = this.add.nineslice(0, 0, "GJ_button01", null, 240, 52, btnBorder, btnBorder, btnBorder, btnBorder).setOrigin(0.5);
+    saveGrp.add(saveBg);
+    saveGrp.add(this.add.bitmapText(0, -3, "goldFont", "SAVE & APPLY", 30).setOrigin(0.5));
+
+    this._makeBouncyButton(saveGrp, 1, async (e) => {
+      if (e) { if (e.preventDefault) e.preventDefault(); if (e.stopPropagation) e.stopPropagation(); }
+      statusLbl.setText("Saving changes to server...");
+      statusLbl.setTint(0xffff00);
+
+      try {
+        const payload = {
+          levelId: level.id,
+          stars: starVal,
+          diff: diffIdx * 10,
+          isAuto: isAutoVal,
+          isDemon: isDemonVal,
+          featured: epicVal > 0 ? 1 : 0,
+          epic: epicVal,
+          userName: user.username
+        };
+
+        const res = await fetch("/api/admin/rate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          statusLbl.setText("✓ Saved Successfully!");
+          statusLbl.setTint(0x00e719);
+          this.time.delayedCall(800, () => {
+            this._adminStudioPopup.destroy();
+            this._adminStudioPopup = null;
+            if (this._closePlayMenu) this._closePlayMenu(true);
+          });
+        } else {
+          statusLbl.setText("Failed to save changes.");
+          statusLbl.setTint(0xff4444);
+        }
+      } catch (err) {
+        statusLbl.setText("Error: " + err.message);
+        statusLbl.setTint(0xff4444);
+      }
+    });
+    inner.add(saveGrp);
+
+    this.tweens.add({ targets: inner, scale: 1, duration: 200, ease: "Back.Out" });
+  }
+
   _buildCustomCreditsPopup() {
     if (this._creditsPopup) return;
     const xPos = screenWidth / 2;
     const popupHeight = 320;
-    const popupWidth = 336;
     this._creditsPopup = this.add.container(0, 0).setScrollFactor(0).setDepth(1000);
 
-    const background = this.add.rectangle(xPos, popupHeight, screenWidth, screenHeight, 0, 150 / 255);
-    background.setInteractive();
+    const background = this.add.rectangle(xPos, popupHeight, screenWidth, screenHeight, 0, 150 / 255).setInteractive();
     this._creditsPopup.add(background);
 
     const bounceContainer = this.add.container(xPos, popupHeight).setScale(0);
     this._creditsPopup.add(bounceContainer);
 
     const cornerRadius = this.textures.get("GJ_square02").source[0].width * 0.325;
-    // Authentic blue/magenta style box matching update log
     const popupBg = this._drawScale9(0, 0, 480, 420, "GJ_square02", cornerRadius, 16777215, 1);
     bounceContainer.add(popupBg);
-
-    const closeBtn = this.add.image(-220, -190, "GJ_WebSheet", "GJ_closeBtn_001.png").setScale(0.8).setInteractive();
-    bounceContainer.add(closeBtn);
-    this._expandHitArea(closeBtn, 2);
-    this._makeBouncyButton(closeBtn, 0.8, () => {
-      this.tweens.add({
-        targets: bounceContainer, scale: 0, duration: 150, ease: "Back.In",
-        onComplete: () => { this._creditsPopup.destroy(); this._creditsPopup = null; }
-      });
-    });
 
     const title = this.add.bitmapText(0, -170, "bigFont", "CREDITS", 36).setOrigin(0.5, 0.5).setTint(0xffff00);
     bounceContainer.add(title);
@@ -6331,13 +6641,45 @@ _buildPauseOverlay() {
     const totalContentH = txt.displayHeight;
     const maxScrollDown = Math.max(0, totalContentH - scrollAreaH + 20);
 
+    // True Dynamic Mask
+    const maskShape = this.add.graphics();
+    maskShape.fillStyle(0xffffff, 1);
+    const updateMask = () => {
+      if (!bounceContainer || !bounceContainer.active) return;
+      const s = bounceContainer.scaleX;
+      maskShape.clear();
+      maskShape.fillStyle(0xffffff, 1);
+      maskShape.fillRect(
+        xPos + (scrollAreaX - scrollAreaW / 2) * s,
+        popupHeight + (scrollAreaY - scrollAreaH / 2) * s,
+        scrollAreaW * s,
+        scrollAreaH * s
+      );
+    };
+    contentContainer.setMask(maskShape.createGeometryMask());
+    this.events.on("postupdate", updateMask);
+
+    // Close button
+    const closeBtn = this.add.image(-220, -190, "GJ_WebSheet", "GJ_closeBtn_001.png").setScale(0.8).setInteractive();
+    bounceContainer.add(closeBtn);
+    this._expandHitArea(closeBtn, 2);
+    this._makeBouncyButton(closeBtn, 0.8, () => {
+      this.events.off("postupdate", updateMask);
+      maskShape.destroy();
+      this.tweens.add({
+        targets: bounceContainer, scale: 0, duration: 150, ease: "Back.In",
+        onComplete: () => { this._creditsPopup.destroy(); this._creditsPopup = null; }
+      });
+    });
+
     let currentScrollY = 0;
+    const baseContentY = scrollAreaY - scrollAreaH / 2 + 8;
     const hitZone = this.add.rectangle(scrollAreaX, scrollAreaY, scrollAreaW, scrollAreaH, 0x000000, 0).setInteractive();
     bounceContainer.add(hitZone);
 
     hitZone.on("wheel", (pointer, objects, deltaX, deltaY) => {
       currentScrollY = Math.max(0, Math.min(maxScrollDown, currentScrollY + deltaY * 0.4));
-      contentContainer.y = scrollAreaY - scrollAreaH / 2 + 8 - currentScrollY;
+      contentContainer.y = baseContentY - currentScrollY;
     });
 
     let isDragging = false;
@@ -6346,18 +6688,18 @@ _buildPauseOverlay() {
     this.input.on("pointermove", (p) => {
       if (!isDragging) return;
       currentScrollY = Math.max(0, Math.min(maxScrollDown, startY - p.y));
-      contentContainer.y = scrollAreaY - scrollAreaH / 2 + 8 - currentScrollY;
+      contentContainer.y = baseContentY - currentScrollY;
     });
     this.input.on("pointerup", () => { isDragging = false; });
 
-    // GitHub Repo Button neatly tucked at the bottom inside the box
+    // GitHub Button inside frame
     const btnBorder = this.textures.get("GJ_button01").source[0].width * 0.3;
-    const repoBtn = this.add.container(0, 150).setSize(280, 40).setInteractive();
+    const repoBtn = this.add.container(0, 155).setSize(280, 40).setInteractive();
     const repoBg = this.add.nineslice(0, 0, "GJ_button01", null, 280, 40, btnBorder, btnBorder, btnBorder, btnBorder).setOrigin(0.5);
     repoBtn.add(repoBg);
     repoBtn.add(this.add.bitmapText(0, -2, "goldFont", "View GitHub Repository", 20).setOrigin(0.5));
     this._makeBouncyButton(repoBtn, 1, () => {
-      window.open("https://github.com/Hacefr/gmd", "_blank");
+      window.open("https://github.com/web-dashers/web-dashers.github.io", "_blank");
     });
     bounceContainer.add(repoBtn);
 

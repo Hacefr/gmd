@@ -36,7 +36,7 @@ module.exports = function(app) {
 
     const salt = crypto.randomBytes(16).toString("hex");
     const hash = hashPassword(password, salt);
-    const userId = db.users.length + 1;
+    const userId = db.users.length ? Math.max(...db.users.map(u => u.id)) + 1 : 100;
     const newUser = { id: userId, username, email: email || null, salt, hash, pin: pin || null, createdAt: new Date() };
 
     db.users.push(newUser);

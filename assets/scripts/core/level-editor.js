@@ -8364,12 +8364,42 @@ class LevelEditor {
         this._setEditorSongDraft(-(normalIndex + 1), title);
     };
 
-    const commitCustomSongDraft = () => {
+    const commitCustomSongDraft = async () => {
         const id = parseInt(customInput || "0", 10);
-
         if (!id || id <= 0) return;
 
-        this._setEditorSongDraft(id, `NG#${id}`);
+        setSongText("Verifying Song #" + id + "...");
+        songText.setTint(0xffff00);
+
+        try {
+            const streamUrl = "https://fetchsongid.lasokar.workers.dev/?id=" + id;
+            const audioRes = await fetch(streamUrl);
+
+            if (!audioRes.ok) {
+                setSongText("✗ Song #" + id + " Not Found");
+                songText.setTint(0xff4444);
+                return;
+            }
+
+            const title = "Newgrounds Song #" + id;
+
+            // Bright green confirmation
+            setSongText("✓ " + title);
+            songText.setTint(0x00ff00);
+
+            this._setEditorSongDraft(id, title);
+            window._onlineSongTitle = title;
+            window._onlineSongArtist = "Newgrounds";
+
+            if (window.SongDB) {
+                const arrayBuf = await audioRes.arrayBuffer();
+                await window.SongDB.save(id, arrayBuf, this.sound.context);
+                console.log(">>> [EDITOR] Custom song #" + id + " downloaded into SongDB!");
+            }
+        } catch (err) {
+            setSongText("✗ Error loading song");
+            songText.setTint(0xff4444);
+        }
     };
 
     this._makeBouncyButton(prevSong, 1.2, () => {

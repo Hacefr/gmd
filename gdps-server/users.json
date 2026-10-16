@@ -1,26 +1,48 @@
 {
   "users": [
     {
-      "id": 1,
+      "id": 100,
       "username": "Hacefr",
       "email": null,
-      "salt": "dea67ecd66a20407f0534069e97ebc4b",
-      "hash": "4d8c7888538b1fab26ddb3e1c6bdac76af4c8f0e8c9fb65a606f5e3b84e71486c82c042dd40c27cdcb559f8acb7864b7f2694cec13e136af9200c5607e3207d6",
+      "salt": "958385ee52779f75046d9ea5fcd8c77e",
+      "hash": "c7d29b67100a1eed34b192648b7de78aac2d12a35588e0ce3b46e88868b8663380ff44ddd87f2a0493d128b33e45d9e4a0b0455e07d7feddbd8053b230be9474",
       "pin": null,
-      "createdAt": "2026-10-16T00:58:24.651Z"
-    },
-    {
-      "id": 2,
-      "username": "Hace",
-      "email": null,
-      "salt": "885ee8c2d83430e89dba741eaedda16f",
-      "hash": "ef59634f147a1c510580bc0f601b056ffe51904853557166a672bbb4f5ba8955ab3102d557d0bf1095de59a274d37438ac8cef6976ce5fb6d5242821f47954e4",
-      "pin": null,
-      "createdAt": "2026-10-16T01:00:01.985Z"
+      "createdAt": "2026-10-16T18:09:51.496Z"
     }
   ],
   "sessions": {
-    "61d935a88f632e18db71955efc3918e83de14fe2110045a9e98ab6da61d34eec": 1
+    "e19510fb4c26461bfd906aa0fbc5bb33cce63ffd267f294170570f1db09b9614": 100
   },
-  "saves": {}
+  "saves": {
+    "100": {
+      "gd_settings": "{\"noclip\":false,\"showPercentage\":true,\"percentDecimals\":true,\"showHitboxes\":false,\"startPosSwitcher\":false,\"hitboxTrail\":false,\"showFPS\":false,\"solidWaveTrail\":false,\"noclipAccuracy\":false,\"hitboxesOnDeath\":false,\"createObjectIds\":false,\"showObjectIds\":false,\"showCPS\":false,\"speedHack\":1,\"macroBot\":false,\"practiceMusicSync\":false,\"showGlow\":true,\"showEditorGlow\":false,\"useDirectInternet\":true,\"enablePortalGuide\":true,\"enableOrbGuide\":false,\"enableMiniIcon\":false,\"cullDistance\":3,\"settingInfoText\":{},\"enableLDM\":false}",
+      "gd_totalAttempts": "29",
+      "gd_totalJumps": "174",
+      "gd_totalDeaths": "7",
+      "gd_completedLevels": "10",
+      "created_levels": "[{\"levelName\":\"Unnamed 0\",\"song\":\"Stereo Madness\",\"songId\":-1,\"levelId\":null,\"levelString\":\"H4sIAAAAAAAAA61QwRHDMAhbyO0hwInz7AwZgAGyQoevjfzor-5d_EA2AhlxndYKwiU0oDUstNYACEpg0uOB2AIiEnvgKXkC9eveQqIF3ogUFF0TxN2Cx4Lg6GD7kqRGTy7I_rXK_r5b0Rd3SeND9ofxumgc_d7nbMfaPrcl2XK9YEVmfrxqSdgIXnrkfc-ok-cLbcBpB7mMljGJl2ckC2ERq5RlygrdC0a5EBoBBE1QKirFjJyRM07o1HRqemX75DiwGRucQDPG343fdjMDMD2xXefwoJUOH7uIH6DaAwAA\",\"levelLength\":0,\"normalBest\":100,\"practiceBest\":0,\"description\":\"\",\"version\":1,\"status\":\"Verified\",\"createdId\":\"local_1\",\"lastModified\":1792111123217},{\"levelName\":\"Unnamed 15\",\"song\":\"Stereo Madness\",\"songId\":-1,\"levelId\":null,\"levelString\":\"H4sIAAAAAAAACq1QwRHDMAhbyO0hwIlzfWWGDsAAXaHD10Z-9Ff3Ln4gG4GMeD2tFYRLaEBrWGitARCUwKTHDbEFRCT2wF3yBOrXvYVEC7wRKSi6JoirBY8FwdHB9iVJjZ5ckP1rlf19taIv7pLGh-wP43XROPq9z9mOtX1uS7LldcKKzPx41ZKwEbz0yPueUSfPF9qApx3kMlrGJE7PSBbCIlYpy5QVuheMciE0AgiaoFRUihk5I2ec0Knp1PTK9slxYDM2OIFmjL8bv-1mBmB6YrvO4UErHR4fJXMaP9sDAAA=\",\"levelLength\":0,\"normalBest\":100,\"practiceBest\":0,\"description\":\"\",\"version\":1,\"status\":\"Verified\",\"createdId\":\"local_2\"},{\"levelName\":\"Unnamed 1\",\"song\":\"Stereo Madness\",\"songId\":-1,\"levelId\":null,\"levelString\":\"H4sIAAAAAAAACq1QwRHDMAhbyO0hwIlzfWWGDsAAXaHD10Z-9Ff3Ln4gG4GMeD2tFYRLaEBrWGitARCUwKTHDbEFRCT2wF3yBOrXvYVEC7wRKSi6JoirBY8FwdHB9iVJjZ5ckP1rlf19taIv7pLGh-wP43XROPq9z9mOtX1uS7LldcKKzPx41ZKwEbz0yPueUSfPF9qApx3kMlrGJE7PSBbCIlYpy5QVuheMciE0AgiaoFRUihk5I2ec0Knp1PTK9slxYDM2OIFmjL8bv-1mBmB6YrvO4UErHR4fJXMaP9sDAAA=\",\"levelLength\":0,\"normalBest\":0,\"practiceBest\":0,\"description\":\"\",\"version\":1,\"status\":\"Unverified\",\"createdId\":\"local_3\"},{\"levelName\":\"Soon :)\",\"song\":\"Stereo Madness\",\"songId\":-1,\"levelId\":null,\"levelString\":\"H4sIAAAAAAAAA92YQY4cIQxFL8RE2NhAKas-Qx_AB5grzOEH-ChpKVKambT-Ir3AVQX-D9NAmXq_l54kLIeGqEcJdQ8RGIXBQ4s3iRqSc44W8iOvX4g_XPfI0UM-JJZg1jNBebXgdSA4PeB-JKkxHh7Ifmkox_2rFe1wLBH4lH0SuB8GLuN69LNfZ-NZj2TT-01Kyvv5vPO0TIWxNEpct1Xqrsed9Gnu5ULdKssqV8XNVolayWiEVopmihbakszmGabDCIwuo1BUiBXUFdQV9NCgadA0h_uuQ4dLgYPBIJgCegF2BDON7JjgrrvzglCG-Tl64L0lTW3IlNQ8Te5UnC7LYTVfAY84PY2xu9LqsreUqvwxaPYwdDvejRrOSa7JkfoMJBP01v6FVGmkQiYVGinT_icG6WKRVP-_mEB6ukO8CmSsmccAFRJIO2sn2iTCTrRJjFXbSTMcIMJ8KMICGQvUqCDCZACIMb83ibBmN4mwD2HiUUjCIhnrdWGsF6CxXumuVBBhe3BaKrlJhO1hkxhLiXbcNNpx02jHTaMdN4123LSzDx0vmOSsJM9ZaavTMnGnnS6cdmKqtPyhGmv0KitJrqy0v9Ky8UrLxislGxfx-utD8u-w5G9fkvU7rE9QXKiYjxoAAA\",\"levelLength\":0,\"normalBest\":0,\"practiceBest\":0,\"description\":\"Online version will  release soon :)\",\"version\":1,\"status\":\"Unverified\",\"createdId\":\"local_4\",\"lastModified\":1792115151109},{\"levelName\":\"Unnamed 2\",\"song\":\"Newgrounds Song #467339\",\"songId\":467339,\"levelId\":null,\"levelString\":\"H4sIAAAAAAAAA61QwRHDMAhbyO0hwInz7AwZgAGyQoevjfzor-5d_EA2AhlxndYKwiU0oDUstNYACEpg0uOB2AIiEnvgKXkC9eveQqIF3ogUFF0TxN2Cx4Lg6GD7kqRGTy7I_rXK_r5b0Rd3SeND9ofxumgc_d7nbMfaPrcl2XK9YEVmfrxqSdgIXnrkfc-ok-cLbcBpB7mMljGJl2ckC2ERq5RlygrdC0a5EBoBBE1QKirFjJyRM07o1HRqemX75DiwGRucQDPG343fdjMDMD2xXefwoJUOH7uIH6DaAwAA\",\"levelLength\":0,\"normalBest\":100,\"practiceBest\":0,\"description\":\"\",\"version\":1,\"status\":\"Verified\",\"createdId\":\"local_5\",\"lastModified\":1792160405905},{\"levelName\":\"Unnamed 3\",\"song\":\"Newgrounds Song #709578\",\"songId\":709578,\"levelId\":null,\"levelString\":\"H4sIAAAAAAAAA61QwRHDMAhbyO0hwInz7AwZgAGyQoevjfzor-5d_EA2AhlxndYKwiU0oDUstNYACEpg0uOB2AIiEnvgKXkC9eveQqIF3ogUFF0TxN2Cx4Lg6GD7kqRGTy7I_rXK_r5b0Rd3SeND9ofxumgc_d7nbMfaPrcl2XK9YEVmfrxqSdgIXnrkfc-ok-cLbcBpB7mMljGJl2ckC2ERq5RlygrdC0a5EBoBBE1QKirFjJyRM07o1HRqemX75DiwGRucQDPG343fdjMDMD2xXefwoJUOH7uIH6DaAwAA\",\"levelLength\":0,\"normalBest\":0,\"practiceBest\":0,\"description\":\"\",\"version\":1,\"status\":\"Unverified\",\"createdId\":\"local_6\",\"lastModified\":1792160673767},{\"levelName\":\"stars_test_01\",\"song\":\"Newgrounds Song #701013\",\"songId\":701013,\"levelId\":null,\"levelString\":\"H4sIAAAAAAAAA71RyXEEMQhMCLs4JI2m_NoYNgAC2BQcvIHWY6v8sFxezzxoSUA3zTzuNkm8sauLdjfX3l0EoAA8Nn8THy7M7IfLO9fn0p_O09mny6d4EbLuEcqrCc8NwuxA-xalejxu0P5qlXF_NWPb3CWMJ-0PxvumcYlzzDnPvX2OLVp63MSI13veOhUMQKOIOB8VdeVxk5lwtxO5ilaxErdWEVlhFKFKUaao0IMkyxkwAQLQAgWjgsyQM-QMEzZwNnC2jvaVw8BmaGgAmDGoG2TDTIIsT2jXNbzASsBHTqDUuFNwBlOqJl82VHkVl91w2Sk2p1QD94NoyLeVtafFLbfPQucVQpZKVkpjSyn-6l-kzuukxmVSx2VKOv9d6gvgYQDgwgYAAA\",\"levelLength\":0,\"normalBest\":100,\"practiceBest\":0,\"description\":\"\",\"version\":1,\"status\":\"Verified\",\"createdId\":\"local_7\",\"lastModified\":1792170074786},{\"levelName\":\"Unnamed 4\",\"song\":\"Stereo Madness\",\"songId\":-1,\"levelId\":null,\"levelString\":\"H4sIAAAAAAAAA71QQW4EMQj7EK1iCDNZ9bRv2AfwgP1CH1-Ccxiph6bStjngJBiDeT5sCKK30IB6WKh7AAQl8LPHG-IItNbiDLy3OgG_3Ee0GIFPRAk23RPEqwVvG4KzguVbkhr5uSH7q1Xm-9WKfXOXND5lfzDum8aR95xz3Pb2eWzJyvMOk7b-58ul4CB0ycj7WVFXni-MCQ-7MVfRKlbi3isyi0YSWUqakqGnYNIbYRBA0AKlolLMmDPmjBN2anZqdmf5ynFgMxZ0As0YuxvbppkJWJ5Yrmt40ErCB2SIiudCUtNlNp1yk1_s4pbbNOmSPJWa10-RA9821i97W2YvfU77nz5oxx83-gLs58APEwUAAA\",\"levelLength\":0,\"normalBest\":100,\"practiceBest\":0,\"description\":\"\",\"version\":1,\"status\":\"Verified\",\"createdId\":\"local_8\",\"lastModified\":1792170997261},{\"levelName\":\"W key among us mod\",\"song\":\"Stereo Madness\",\"songId\":-1,\"levelId\":null,\"levelString\":\"H4sIAAAAAAAAA71RyW3EMAxsiAl4WjLy2hq2ABawLaT4SBw_DOQRBVjbD44kkjMc-vW0TpLOqSkaaakRKQJQAB49PyS3FGbOlvLJ9aXE6dyTs6d8SxYh6xqhvJtwXyCcHWhfotQcjwu0_1rluL-b0Rd3CeOT9g_jsWhcxnnM2fe1fW5LtPR6iBEf7_MWVLABnEbEuVXUI4-b9AlP25GraBUr8fCKyAqjCFWKMkWFNpJZzoAOEIAWKBgVZIacIWeY0MHp4PRA-5HDwGZocADMGNQNssPMBDk8oV2P4QVWBnzNCYb8HjQ4OWiqTr7ZUOVVXHaHy6CxOaUaOBrRJr9W5qfFHW5PQl5CfrlOs6nTLtcRvmtzvd_kSNs9v0hcLxb6AfhMCZC3BgAA\",\"levelLength\":0,\"normalBest\":100,\"practiceBest\":0,\"description\":\"\",\"version\":1,\"status\":\"Verified\",\"createdId\":\"local_9\",\"lastModified\":1792172099377}]",
+      "iconMainColor": "ffff00",
+      "iconSecondaryColor": "ff7f00",
+      "iconCurrentPlayer": "player_30",
+      "iconCurrentShip": "ship_17",
+      "iconCurrentBall": "player_ball_17",
+      "iconCurrentWave": "dart_17",
+      "iconCurrentSpider": "spider_10",
+      "iconCurrentBird": "bird_24",
+      "_bestPercents": {
+        "bestPercent_local_9": "100",
+        "bestPercent_local_7": "100",
+        "bestPercent_online_4": "100",
+        "bestPercent_level_1": "89",
+        "bestPercent_online_2": "100",
+        "bestPercent_local_1": "100",
+        "bestPercent_local_8": "100",
+        "practiceBestPercent_online_1": "100",
+        "bestPercent_local_2": "100",
+        "bestPercent_online_1": "100",
+        "bestPercent_local_5": "100",
+        "bestPercent_online_3": "100"
+      }
+    }
+  }
 }

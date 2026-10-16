@@ -76,6 +76,22 @@ class AudioManager {
     this._pendingOnlineSongLoadKey = null;
     this._pendingOnlineSongLoadOffset = 0;
     this._pendingOnlineSongFadeDuration = null;
+
+    // Fix tab-switch audio death: prevent Phaser from freezing sound context on blur
+    if (this._scene?.game?.sound) {
+      this._scene.game.sound.pauseOnBlur = false;
+    }
+    const resumeAudio = () => {
+      const ctx = this._scene?.game?.sound?.context;
+      if (ctx && ctx.state === "suspended") {
+        ctx.resume().catch(() => {});
+      }
+    };
+    window.addEventListener("focus", resumeAudio);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) resumeAudio();
+    });
+    window.addEventListener("pointerdown", resumeAudio, { once: false });
   }
   _effectiveVolume() {
     return this._userMusicVol * 0.8;
@@ -210,8 +226,19 @@ class AudioManager {
         const songTitle = (ngMap["2"] || `Song #${songId}`).replace(/:$/, "").trim();
         const songArtist = (ngMap["4"] || "Unknown").replace(/:$/, "").trim();
         
-        const arrayBuf = await window.SongDB.load(songId);
-        if (!arrayBuf) throw new Error("Song not downloaded manually");
+        let arrayBuf = await window.SongDB.load(songId);
+        if (!arrayBuf) {
+          console.log(">>> [AUDIO] Auto-downloading song stream for #" + songId + "...");
+          const streamUrl = "https://fetchsongid.lasokar.workers.dev/?id=" + encodeURIComponent(songId);
+          const sRes = await fetch(streamUrl);
+          if (sRes.ok) {
+            arrayBuf = await sRes.arrayBuffer();
+            await window.SongDB.save(songId, arrayBuf);
+            console.log(">>> [AUDIO] Song #" + songId + " cached in SongDB successfully!");
+          } else {
+            throw new Error("Failed to auto-stream song #" + songId);
+          }
+        }
         
         const decoded = await ctx.decodeAudioData(arrayBuf.slice(0));
 
@@ -223,6 +250,22 @@ class AudioManager {
         this._pendingOnlineSongLoadKey = null;
         this._pendingOnlineSongLoadOffset = 0;
         this._pendingOnlineSongFadeDuration = null;
+
+    // Fix tab-switch audio death: prevent Phaser from freezing sound context on blur
+    if (this._scene?.game?.sound) {
+      this._scene.game.sound.pauseOnBlur = false;
+    }
+    const resumeAudio = () => {
+      const ctx = this._scene?.game?.sound?.context;
+      if (ctx && ctx.state === "suspended") {
+        ctx.resume().catch(() => {});
+      }
+    };
+    window.addEventListener("focus", resumeAudio);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) resumeAudio();
+    });
+    window.addEventListener("pointerdown", resumeAudio, { once: false });
 
         window._onlineSongBuffer = decoded;
         window._onlineSongKey = songKey;
@@ -242,6 +285,22 @@ class AudioManager {
           this._pendingOnlineSongLoadKey = null;
           this._pendingOnlineSongLoadOffset = 0;
           this._pendingOnlineSongFadeDuration = null;
+
+    // Fix tab-switch audio death: prevent Phaser from freezing sound context on blur
+    if (this._scene?.game?.sound) {
+      this._scene.game.sound.pauseOnBlur = false;
+    }
+    const resumeAudio = () => {
+      const ctx = this._scene?.game?.sound?.context;
+      if (ctx && ctx.state === "suspended") {
+        ctx.resume().catch(() => {});
+      }
+    };
+    window.addEventListener("focus", resumeAudio);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) resumeAudio();
+    });
+    window.addEventListener("pointerdown", resumeAudio, { once: false });
         }
         console.warn("Failed to load online song audio", songKey, err);
       }
@@ -580,6 +639,22 @@ class AudioManager {
     this._pendingOnlineSongLoadKey = null;
     this._pendingOnlineSongLoadOffset = 0;
     this._pendingOnlineSongFadeDuration = null;
+
+    // Fix tab-switch audio death: prevent Phaser from freezing sound context on blur
+    if (this._scene?.game?.sound) {
+      this._scene.game.sound.pauseOnBlur = false;
+    }
+    const resumeAudio = () => {
+      const ctx = this._scene?.game?.sound?.context;
+      if (ctx && ctx.state === "suspended") {
+        ctx.resume().catch(() => {});
+      }
+    };
+    window.addEventListener("focus", resumeAudio);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) resumeAudio();
+    });
+    window.addEventListener("pointerdown", resumeAudio, { once: false });
     this.stopMusic();
   }
 }
