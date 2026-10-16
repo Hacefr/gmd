@@ -5222,6 +5222,7 @@ _buildPauseOverlay() {
     } catch(e) {}
 
     if (this._profilePopup) return;
+    if (window.AccountAPI && window.AccountAPI.syncStars) window.AccountAPI.syncStars();
     const centerX = screenWidth / 2, centerY = 320, panelWidth = 680, panelHeight = 480;
     this._profilePopup = this.add.container(0, 0).setScrollFactor(0).setDepth(300);
 
@@ -5261,24 +5262,19 @@ _buildPauseOverlay() {
     inner.add(pBox);
 
     const mColor = window.mainColor || 0x00ff00;
-    const getFrameFor = (storageKey, setKey, fallback) => {
-      try {
-        const idx = parseInt(localStorage.getItem(storageKey) || "0", 10);
-        if (_iconFrameSets && _iconFrameSets[setKey] && _iconFrameSets[setKey][idx]) {
-          return _iconFrameSets[setKey][idx];
-        }
-      } catch (e) {}
-      return fallback;
+    const getFrameFor = (winKey, fallback) => {
+      const base = window[winKey] || fallback;
+      return base.endsWith(".png") ? base : base + "_001.png";
     };
 
     const iconsToDraw = [
-      { frame: getFrameFor("iconCurrentPlayer", "icon", "player_01_001.png"), scale: 0.75 },
-      { frame: getFrameFor("iconCurrentShip", "ship", "ship_01_001.png"), scale: 0.65 },
-      { frame: getFrameFor("iconCurrentBall", "ball", "player_ball_01_001.png"), scale: 0.65 },
-      { frame: getFrameFor("iconCurrentBird", "bird", "bird_01_001.png") || getFrameFor("iconCurrentBird", "ufo", "ufo_01_001.png"), scale: 0.65 },
-      { frame: getFrameFor("iconCurrentWave", "wave", "wave_01_001.png"), scale: 0.65 },
-      { frame: getFrameFor("iconCurrentRobot", "robot", "robot_01_001.png"), scale: 0.55 },
-      { frame: getFrameFor("iconCurrentSpider", "spider", "spider_01_001.png"), scale: 0.55 }
+      { frame: getFrameFor("currentPlayer", "player_01"), scale: 0.75 },
+      { frame: getFrameFor("currentShip", "ship_01"), scale: 0.65 },
+      { frame: getFrameFor("currentBall", "player_ball_01"), scale: 0.65 },
+      { frame: getFrameFor("currentBird", "bird_01"), scale: 0.65 },
+      { frame: getFrameFor("currentWave", "dart_01"), scale: 0.65 },
+      { frame: getFrameFor("currentRobot", "robot_01"), scale: 0.55 },
+      { frame: getFrameFor("currentSpider", "spider_01"), scale: 0.55 }
     ];
 
     const startXOffset = -225;
@@ -9361,6 +9357,7 @@ _applyMirrorEffect() {
         localStorage.setItem(completedKey, JSON.stringify(completedSet));
         window._completedLevels = completedSet.length;
         localStorage.setItem("gd_completedLevels", window._completedLevels);
+        if (window.AccountAPI && window.AccountAPI.syncStars) window.AccountAPI.syncStars();
       try {
         const rawCreated = localStorage.getItem("created_levels");
         if (rawCreated) {

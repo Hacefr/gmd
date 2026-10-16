@@ -5,6 +5,29 @@ window.AccountAPI = {
     return `${window._apiBase}${path}`;
   },
 
+  
+  async syncStars() {
+    if (!this.currentUser) return;
+    try {
+      const completedSet = JSON.parse(localStorage.getItem("gd_completedSet") || "[]");
+      const onlineIds = completedSet.filter(id => String(id).startsWith("online_")).map(id => parseInt(String(id).replace("online_", "")));
+      
+      const res = await fetch(this._url("/api/complete"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ levelIds: onlineIds }),
+        credentials: "include"
+      });
+      const data = await res.json();
+      if (data.ok && data.stars !== undefined) {
+        localStorage.setItem("gd_totalStars", data.stars);
+        console.log(">>> [SYNC] Server verified stars:", data.stars);
+      }
+    } catch (e) {
+      console.warn("Star sync failed:", e);
+    }
+  },
+
   async checkSession() {
     try {
       const res = await fetch(this._url('/api/auth/me'), { credentials: 'include' });

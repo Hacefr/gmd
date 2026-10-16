@@ -44,5 +44,16 @@
         "bestPercent_online_3": "100"
       }
     }
+  },
+  "userProgress": {
+    "100": {
+      "completed": [
+        "2",
+        "3",
+        "4",
+        "1"
+      ],
+      "stars": 9
+    }
   }
 }
